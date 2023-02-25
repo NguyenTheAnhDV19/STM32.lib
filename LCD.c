@@ -6,6 +6,8 @@ https://html.alldatasheet.com/html-pdf/63673/HITACHI/HD44780/11541/46/HD44780.ht
  */
 
 //here is the function to setup LCD to work, look at the datasheet in page 46 to know more about this
+//the address of slave is in this case have to leftshift 1 (<<1), read STM32 datasheet to know more about.
+//so if the address of the slave is 0x27 then pass 0x4e in this function as address
 void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address){
 	lcd->address = address;
 	lcd->hi2c1 = hi2c1;
