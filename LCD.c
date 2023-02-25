@@ -80,6 +80,7 @@ void writeByteLCD(LCD* lcd,uint8_t value){
 	uint8_t* eh  = &enHigh;
 	uint8_t* el = &enLow;
 
+	//read the STM32 datasheet to know how this function work - it simply send the data from master to slave 
 	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address, d, sizeof(data), 1000);
 	HAL_Delay(1);
 	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address ,eh, sizeof(enHigh), 1000);
@@ -114,7 +115,7 @@ void setCursor(LCD* lcd,uint8_t row, uint8_t column){
 }
 
 void sendLCD(LCD* lcd,uint8_t value,bool mode){
-	//have to split the data to highnib and low nib, then send the highnib first, lownib later
+	//have to split the data to highnib and low nib, then send the highnib first, lownib later. This is how we can send data to LCD in 4 bit mode
 	//mode 0 is for command, 1 is for sending data
 	uint8_t highnib=value&0xf0;
 	uint8_t lownib=(value<<4)&0xf0;
