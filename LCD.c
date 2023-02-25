@@ -37,7 +37,7 @@ void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address){
 	commandLCD(lcd, 0x04);
 
 	//display clear and set entry mode
-	//here i chose I/D to be 1 , so that the cursor move and display standstill
+	//here chose I/D to be 1 , so that the cursor move and display standstill
 	//also set LCD to 4 bit mode, 2 line, 5x7 Dots, the address is 0x28
 	clearLCD(lcd);
 	commandLCD(lcd, 0x28|0x06);
