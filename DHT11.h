@@ -7,8 +7,8 @@
 #include<stdbool.h>
 
 typedef struct {
-	char buffer[5];
-	bool bug;
+	char buffer[5]; //this buffer used to store all of the data from sensor, including temp,humid, and 3 bit used to check bug.
+	bool bug; // bug == 1 ? ("there is something wrong") : (it's totally fine)
 } DHT11;
 
 void getData(DHT11* dht11, TIM_HandleTypeDef* htim);
