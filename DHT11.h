@@ -17,5 +17,7 @@ int getTemp(DHT11* dht11,bool C);
 int getHumid(DHT11* dht11);
 int getTime(TIM_HandleTypeDef* htim,uint8_t time, bool mode);
 bool debug(DHT11* dht11);
+void intPutSetUp();
+void outPutSetUp();
 
 #endif
