@@ -8,23 +8,14 @@
 
 void getData(DHT11* dht11,TIM_HandleTypeDef* htim){
 	//here confingure the pin B14 on Stm32 at output mode first to put it in reset mode -> signal the slave to gives feed back to master
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-	  GPIO_InitStruct.Pin = GPIO_PIN_14;
-	  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	  GPIO_InitStruct.Pull = GPIO_NOPULL;
-	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	inPutSetup();
 	
 	//put Pin14 in reset mode and delay for at least 18ms (see the datasheet page 6/9 for more information)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
 	HAL_Delay(20);
 	
 	//configure Pin14 to Input_Pullup mode so the slave can pulldown the pinmode, this process takes up about 20-40ms
-		GPIO_InitStruct.Pin = GPIO_PIN_14;
-		GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-		GPIO_InitStruct.Pull = GPIO_PULLUP;
-		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	outPutSetUp();
 
 	//here delay for 45 ms, wait till slave pullpin down
 	delay_us(htim, 45);
@@ -79,4 +70,21 @@ bool debug(DHT11* dht11)
 {
     if(dht11->buffer[0]+dht11->buffer[1]+dht11->buffer[2]+dht11->buffer[3] != dht11->buffer[4]) return false;
     return true;
+}
+
+void inPutSetUp(){
+	 GPIO_InitTypeDef GPIO_InitStruct = {0};
+	 GPIO_InitStruct.Pin = GPIO_PIN_14;
+	 GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	 GPIO_InitStruct.Pull = GPIO_NOPULL;
+	 GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
+void outPutSetUp(){
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	GPIO_InitStruct.Pin = GPIO_PIN_14;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
