@@ -12,7 +12,7 @@ void getData(DHT11* dht11,TIM_HandleTypeDef* htim){
 	
 	//put Pin14 in reset mode and delay for at least 18ms (see the datasheet page 6/9 for more information)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
-	HAL_Delay(20);
+	delay_us(htim, 18000);
 	
 	//configure Pin14 to Input_Pullup mode so the slave can pulldown the pinmode, this process takes up about 20-40ms
 	outPutSetUp();
