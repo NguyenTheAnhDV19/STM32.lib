@@ -1,31 +1,33 @@
 #include<LCD.h>
+#include<timer.h>
 
 /*
 link to the datasheet of HD44780
-https://html.alldatasheet.com/html-pdf/63673/HITACHI/HD44780/11541/46/HD44780.html
+	https://html.alldatasheet.com/html-pdf/63673/HITACHI/HD44780/11541/46/HD44780.html
  */
 
 //here is the function to setup LCD to work, look at the datasheet in page 46 to know more about this
 //the address of slave is in this case have to leftshift 1 (<<1), read STM32 datasheet to know more about.
 //so if the address of the slave is 0x27 then pass 0x4e in this function as address
-void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address){
+void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address,TIM_HandleTypeDef* htim){
 	lcd->address = address;
 	lcd->hi2c1 = hi2c1;
+	lcd->htim = htim;
 
 	//wait for more than 40ms after Vcc rises to 2.7V
-	HAL_Delay(50);
+	DELAY_TIM_Ms(lcd->htim, 50);
 
 	//here send byte with value of 0x04 in 4 mode bit, so left shift it 4 times
 	//wait for at least 4.1 ms according to datasheet
 	writeByteLCD(lcd, 0x03<<4);
-	HAL_Delay(5);
+	DELAY_TIM_Ms(lcd->htim, 5);
 
 	//seconds time, wait for more than 100 us
 	writeByteLCD(lcd, 0x03<<4);
-	HAL_Delay(5);
+	DELAY_TIM_Ms(lcd->htim, 5);
 
 	writeByteLCD(lcd, 0x03<<4);
-	HAL_Delay(1);
+	DELAY_TIM_Ms(lcd->htim, 1);
 
 	//return home with address of 0x02
 	homeLCD(lcd);
@@ -37,7 +39,7 @@ void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address){
 	commandLCD(lcd, 0x04);
 
 	//display clear and set entry mode
-	//here chose I/D to be 1 , so that the cursor move and display standstill
+	//here i chose I/D to be 1 , so that the cursor move and display standstill
 	//also set LCD to 4 bit mode, 2 line, 5x7 Dots, the address is 0x28
 	clearLCD(lcd);
 	commandLCD(lcd, 0x28|0x06);
@@ -49,17 +51,14 @@ void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address){
 
 void homeLCD(LCD*lcd){
 	commandLCD(lcd, returnHome);
-	HAL_Delay(500);
 }
 
 void offLCD(LCD* lcd){
 	commandLCD(lcd, displayOFF);
-	HAL_Delay(500);
 }
 
 void onLCD(LCD*lcd){
 	commandLCD(lcd,cursorOff);
-	HAL_Delay(500);
 }
 
 void writeByteLCD(LCD* lcd,uint8_t value){
@@ -80,13 +79,12 @@ void writeByteLCD(LCD* lcd,uint8_t value){
 	uint8_t* eh  = &enHigh;
 	uint8_t* el = &enLow;
 
-	//read the STM32 datasheet to know how this function work - it simply send the data from master to slave 
-	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address, d, sizeof(data), 1000);
-	HAL_Delay(1);
-	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address ,eh, sizeof(enHigh), 1000);
-	HAL_Delay(1);
-	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address, el, sizeof(enLow), 1000);
-	HAL_Delay(50);
+	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address, d, sizeof(data), 1);
+	DELAY_TIM_Ms(lcd->htim, 1);
+	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address ,eh, sizeof(enHigh), 1);
+	DELAY_TIM_Ms(lcd->htim, 1);
+	HAL_I2C_Master_Transmit(lcd->hi2c1,lcd->address, el, sizeof(enLow), 1);
+	DELAY_TIM_Ms(lcd->htim, 50);
 }
 
 void printNumLCD(LCD* lcd,uint8_t num){
@@ -115,7 +113,7 @@ void setCursor(LCD* lcd,uint8_t row, uint8_t column){
 }
 
 void sendLCD(LCD* lcd,uint8_t value,bool mode){
-	//have to split the data to highnib and low nib, then send the highnib first, lownib later. This is how we can send data to LCD in 4 bit mode
+	//have to split the data to highnib and low nib, then send the highnib first, lownib later
 	//mode 0 is for command, 1 is for sending data
 	uint8_t highnib=value&0xf0;
 	uint8_t lownib=(value<<4)&0xf0;
