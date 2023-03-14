@@ -23,6 +23,7 @@
 typedef struct {
 	I2C_HandleTypeDef* hi2c1;
 	uint16_t address;
+	TIM_HandleTypeDef* htim;
 } LCD;
 
 void sendLCD(LCD* lcd,uint8_t value,bool mode);
@@ -30,7 +31,7 @@ void setCursor(LCD* lcd,uint8_t row, uint8_t column);
 void clearLCD(LCD* lcd);
 void commandLCD(LCD* lcd,uint8_t value);
 void printLCD(LCD* lcd,char* string);
-void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address);
+void initLCD(LCD* lcd,I2C_HandleTypeDef* hi2c1, uint8_t address,TIM_HandleTypeDef* htim);
 void printNumLCD(LCD* lcd,uint8_t num);
 void writeByteLCD(LCD* lcd,uint8_t value);
 void homeLCD(LCD* lcd);
@@ -38,3 +39,4 @@ void offLCD(LCD* lcd);
 void onLCD(LCD* lcd);
 
 #endif
+
